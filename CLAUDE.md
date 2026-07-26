@@ -3,7 +3,7 @@
 > **단일 원본(SSOT): 구글 드라이브가 마스터입니다.**
 > 노션 연동은 2026-07(경) 사용자 결정으로 **잠시 보류** — 갱신 대상 아님. 내용을 바꾸려면 아래 구글 드라이브 마스터 md를 직접 편집하거나 Claude에게 요청하세요.
 >
-> - NEXUS 마스터 (구글 드라이브 md): https://drive.google.com/file/d/1O6TcO72vFWQr95ImIOTzNSrVMRdk4r3W/view
+> - NEXUS 마스터 (구글 드라이브 md): https://drive.google.com/file/d/17vlALvcCHZr8gr6SFZOI2qAqVcdpr3pO/view
 > - 구글 드라이브 NEXUS 폴더: https://drive.google.com/drive/folders/1CIBrGRVRn6s0Oc9vhfi_Up7LrdCMhu0Y
 > - (참고, 보류 중) NEXUS 노션 마스터: https://app.notion.com/p/388d60207bf980cdac56fea299a382f5
 > - 최종 동기화: 2026-07-27
@@ -69,6 +69,7 @@
 
 - **아침 뉴스 브리핑 자동화** — ● 운영중. 매일 07:00 KST 클라우드 routine(ID `trig_01T1HWXPXp3TbrQw3aLrkWuR`). 날씨·일정·시장동향·관심ETF·포스코이앤씨·힐스테이트 메디알레·건설·주요뉴스 → 구글독스 → 카톡 → 이메일 초안.
 - **NEXUS 업무 콘솔 (신규, 2026-07-26~)** — ● 운영중. 구글드라이브 전용 공유 업무 현황판. 폴더 "NEXUS콘솔"(ID `1RvfWm1gMF7VdHMeAT895jHiBjaGSyo1o`) 안 `tasks.json` + edu_console용 FastAPI 드롭인 라우터. 노션 미사용.
+- **클로드코드 직장꿀팁 공유사이트 (신규, 2026-07-27)** — ◐ 기획 단계, 실행 보류. 클로드코드에 익숙하지 않은 직장인이 이미 성공한 실전 자동화 사례를 md로 공유받는 웹사이트 구상(제출은 폼 → 표준 md 자동 생성). 기획 문서: NEXUS 폴더 내 `클로드코드 직장꿀팁 공유사이트 기획.md` (ID `1Yi2aL2920Ns2GCOdQvn91iRaWBhJHQML`). 사용자가 다시 열어 상세 확정 예정.
 - **교육용 동영상 제작** — ◐ 설계중. ffmpeg 컷 → 자막 분할 → SRT → 캡컷.
 - **폰 사진 정리** — ◐ 설계중. DriveSync Ultimate → Claude 업무자료 선별 → 정리.
 - **품질기술 워크플로우(회사 업무)** — ● 운영중. PDF→Notion, 로컬동영상→Notion 등. 회사 PC 로컬(D:\\OneDrive...\\workflows\\) 원본.
@@ -82,8 +83,9 @@
 | 파일/폴더 | ID |
 |-----------|-----|
 | A AI(클로드) (폴더 — NEXUS 루트) | `1CIBrGRVRn6s0Oc9vhfi_Up7LrdCMhu0Y` |
-| NEXUS 마스터 지침.md (현재 정본) | `1O6TcO72vFWQr95ImIOTzNSrVMRdk4r3W` |
+| NEXUS 마스터 지침.md (현재 정본) | `17vlALvcCHZr8gr6SFZOI2qAqVcdpr3pO` |
 | NEXUS콘솔 (업무 콘솔 폴더) | `1RvfWm1gMF7VdHMeAT895jHiBjaGSyo1o` |
+| 직장꿀팁 공유사이트 기획.md | `1Yi2aL2920Ns2GCOdQvn91iRaWBhJHQML` |
 | A 아침뉴스브리핑 (폴더) | `1SxCVyHZpW66u8ns5xknNm8VIEB0_jgnD` |
 | claude.me 구버전(삭제) (폴더) | `1dCcLYVSYbmOVPk5LlEeGZLn1sDrpKZoO` |
 
