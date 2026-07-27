@@ -1,0 +1,16 @@
+{
+  "name": "현장 캡처 → 파이",
+  "short_name": "현장캡처",
+  "description": "현장 영상·회의 녹음을 촬영해 구글드라이브로 올리고, 파이(Claude)가 나중에 분석할 수 있도록 넘겨주는 앱",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#14161c",
+  "theme_color": "#ff6b00",
+  "lang": "ko",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
