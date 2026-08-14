@@ -1,0 +1,824 @@
+<title>InkBridge 시작하기</title>
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Palette: paper and ink. The product is pen strokes on a screen,
+   so the page is built from a cool paper ground, a blue-black ink,
+   and a highlighter yellow reserved for the two steps people
+   actually get wrong. Neutrals carry a slight blue bias toward
+   the accent rather than sitting at a dead grey.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --paper:      #F5F7FA;
+  --surface:    #FFFFFF;
+  --surface-2:  #EDF1F7;
+  --ink:        #141922;
+  --ink-soft:   #586376;
+  --ink-faint:  #8792A4;
+  --line:       #DDE3EC;
+  --line-soft:  #E9EDF3;
+
+  --accent:     #1B58C9;
+  --accent-ink: #123F92;
+  --accent-bg:  #E7EFFD;
+
+  --marker:     #FFE175;
+
+  --warn:       #8A5406;
+  --warn-bg:    #FEF3E0;
+  --warn-line:  #F0CE93;
+
+  --danger:     #A82A22;
+  --danger-bg:  #FDEBE9;
+  --danger-line:#F0B5AF;
+
+  --ok:         #14683F;
+  --ok-bg:      #E4F4EB;
+  --ok-line:    #A8D9BF;
+
+  --shadow: 0 1px 2px rgba(20, 25, 34, .06), 0 8px 24px rgba(20, 25, 34, .05);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:      #0E1218;
+    --surface:    #161C25;
+    --surface-2:  #1D2531;
+    --ink:        #E8EDF5;
+    --ink-soft:   #9DA9BA;
+    --ink-faint:  #748092;
+    --line:       #29323F;
+    --line-soft:  #212933;
+
+    --accent:     #74A8FF;
+    --accent-ink: #A8C8FF;
+    --accent-bg:  #16243B;
+
+    --marker:     rgba(255, 214, 74, .22);
+
+    --warn:       #F0B75E;
+    --warn-bg:    #2C2314;
+    --warn-line:  #4A3A1C;
+
+    --danger:     #FF8478;
+    --danger-bg:  #331D1B;
+    --danger-line:#542C28;
+
+    --ok:         #5FD495;
+    --ok-bg:      #10261A;
+    --ok-line:    #24462F;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper:      #0E1218;
+  --surface:    #161C25;
+  --surface-2:  #1D2531;
+  --ink:        #E8EDF5;
+  --ink-soft:   #9DA9BA;
+  --ink-faint:  #748092;
+  --line:       #29323F;
+  --line-soft:  #212933;
+
+  --accent:     #74A8FF;
+  --accent-ink: #A8C8FF;
+  --accent-bg:  #16243B;
+
+  --marker:     rgba(255, 214, 74, .22);
+
+  --warn:       #F0B75E;
+  --warn-bg:    #2C2314;
+  --warn-line:  #4A3A1C;
+
+  --danger:     #FF8478;
+  --danger-bg:  #331D1B;
+  --danger-line:#542C28;
+
+  --ok:         #5FD495;
+  --ok-bg:      #10261A;
+  --ok-line:    #24462F;
+
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+               "Pretendard", "Malgun Gothic", "맑은 고딕", "Noto Sans KR",
+               "Segoe UI", sans-serif;
+  font-size: 17px;
+  line-height: 1.72;
+  -webkit-text-size-adjust: 100%;
+}
+
+code, kbd, .mono {
+  font-family: ui-monospace, "Cascadia Mono", "Cascadia Code", Consolas,
+               "SF Mono", Menlo, monospace;
+}
+
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 22px 96px;
+}
+
+/* ── Masthead ─────────────────────────────────────────────── */
+
+header.top {
+  padding: 56px 0 36px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 14px;
+}
+
+h1 {
+  font-size: clamp(30px, 6vw, 42px);
+  line-height: 1.22;
+  letter-spacing: -.02em;
+  font-weight: 800;
+  margin: 0 0 14px;
+  text-wrap: balance;
+}
+
+.lede {
+  font-size: 18px;
+  color: var(--ink-soft);
+  margin: 0;
+  max-width: 60ch;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.chip {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+
+.chip strong { color: var(--ink); font-weight: 700; }
+
+/* ── Step spine ───────────────────────────────────────────────
+   The numbering is real: this is an ordered process where doing
+   step 6 before step 3 fails. The connecting rail shows progress
+   through that sequence.
+   ─────────────────────────────────────────────────────────── */
+
+.step {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 22px;
+  position: relative;
+  padding: 38px 0 6px;
+}
+
+.step::before {
+  content: "";
+  position: absolute;
+  left: 23px;
+  top: 78px;
+  bottom: -6px;
+  width: 2px;
+  background: var(--line);
+}
+
+.step:last-of-type::before { display: none; }
+
+.marker-num {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  background: var(--surface);
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  position: relative;
+  z-index: 1;
+}
+
+.step.is-check .marker-num {
+  background: var(--accent);
+  color: var(--surface);
+}
+
+.step h2 {
+  font-size: 23px;
+  font-weight: 750;
+  letter-spacing: -.015em;
+  margin: 6px 0 4px;
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.dur {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  margin: 0 0 14px;
+}
+
+.step > div > p { margin: 0 0 14px; }
+
+/* ── Body elements ────────────────────────────────────────── */
+
+h3 {
+  font-size: 17px;
+  font-weight: 750;
+  margin: 26px 0 10px;
+  letter-spacing: -.01em;
+}
+
+ol.plain, ul.plain {
+  margin: 0 0 16px;
+  padding-left: 22px;
+}
+
+ol.plain li, ul.plain li { margin-bottom: 7px; }
+
+a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+}
+
+a:focus-visible, button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* The highlighter is spent only on the two things people get
+   wrong. Using it more would make it stop meaning anything. */
+.mark {
+  background: linear-gradient(transparent 58%, var(--marker) 58%);
+  padding: 0 .12em;
+  font-weight: 700;
+}
+
+.ui {
+  display: inline-block;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1px 7px;
+  font-size: .92em;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+code:not(.block) {
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: 5px;
+  padding: 2px 6px;
+  font-size: .88em;
+}
+
+pre {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 0 0 16px;
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+pre code { background: none; border: none; padding: 0; }
+
+/* ── Callouts ─────────────────────────────────────────────── */
+
+.note {
+  border-radius: 12px;
+  padding: 15px 18px;
+  margin: 0 0 16px;
+  border: 1px solid;
+  font-size: 16px;
+}
+
+.note p { margin: 0 0 9px; }
+.note p:last-child { margin-bottom: 0; }
+
+.note .lbl {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+
+.note.trap   { background: var(--danger-bg); border-color: var(--danger-line); }
+.note.trap .lbl { color: var(--danger); }
+
+.note.warn   { background: var(--warn-bg); border-color: var(--warn-line); }
+.note.warn .lbl { color: var(--warn); }
+
+.note.ok     { background: var(--ok-bg); border-color: var(--ok-line); }
+.note.ok .lbl { color: var(--ok); }
+
+.note.info   { background: var(--accent-bg); border-color: var(--accent-bg); }
+.note.info .lbl { color: var(--accent); }
+
+/* ── Branch cards ─────────────────────────────────────────── */
+
+.branch {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin: 0 0 16px;
+  box-shadow: var(--shadow);
+}
+
+.branch > h3 { margin-top: 0; }
+
+.branch .tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+/* ── Reference table ──────────────────────────────────────── */
+
+.tablewrap { overflow-x: auto; margin: 0 0 16px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15.5px;
+}
+
+th, td {
+  text-align: left;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+
+th {
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border-bottom: 1.5px solid var(--line);
+}
+
+td:first-child { font-weight: 650; white-space: nowrap; }
+
+/* ── Trouble list ─────────────────────────────────────────── */
+
+section.block {
+  margin-top: 56px;
+  padding-top: 34px;
+  border-top: 1px solid var(--line);
+}
+
+section.block > h2 {
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -.018em;
+  margin: 0 0 20px;
+}
+
+details {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+summary {
+  cursor: pointer;
+  padding: 14px 18px;
+  font-weight: 650;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+summary::-webkit-details-marker { display: none; }
+
+summary::before {
+  content: "+";
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 18px;
+  line-height: 1;
+  flex: none;
+}
+
+details[open] summary::before { content: "\2212"; }
+
+details .body {
+  padding: 0 18px 16px 47px;
+  color: var(--ink-soft);
+  font-size: 16px;
+}
+
+details .body p { margin: 0 0 10px; }
+details .body p:last-child { margin-bottom: 0; }
+
+/* ── Recap card ───────────────────────────────────────────── */
+
+.recap {
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-bg);
+  border-radius: 16px;
+  padding: 24px 26px;
+  margin-top: 20px;
+}
+
+.recap h2 { margin: 0 0 6px; font-size: 21px; font-weight: 800; }
+.recap p { margin: 0 0 14px; color: var(--ink-soft); }
+.recap ol { margin: 0; padding-left: 20px; }
+.recap li { margin-bottom: 6px; font-weight: 600; }
+
+footer.end {
+  margin-top: 56px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-faint);
+  font-size: 15px;
+}
+
+@media (max-width: 560px) {
+  body { font-size: 16.5px; }
+  .step { grid-template-columns: 38px 1fr; gap: 16px; }
+  .step::before { left: 19px; top: 68px; }
+  .marker-num { width: 38px; height: 38px; font-size: 15px; }
+  details .body { padding-left: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">InkBridge 설치 안내</p>
+  <h1>아이패드 펜슬로<br>노트북 화면에 필기하기</h1>
+  <p class="lede">
+    컴퓨터를 잘 몰라도 따라올 수 있게 썼습니다. 위에서부터 순서대로만 하시면 됩니다.
+    이 준비는 <strong>처음 한 번만</strong> 하면 되고, 다음 강의부터는 두 번 클릭이면 끝납니다.
+  </p>
+  <div class="meta">
+    <span class="chip">⏱ 전체 <strong>약 15분</strong></span>
+    <span class="chip">💻 <strong>Windows</strong> 노트북</span>
+    <span class="chip">✏️ <strong>아이패드</strong> + 애플펜슬</span>
+  </div>
+</header>
+
+<!-- 0 -->
+<div class="step">
+  <div class="marker-num">0</div>
+  <div>
+    <h2>아이패드 종류부터 확인</h2>
+    <p class="dur">1분 · 6단계에서 갈립니다</p>
+    <p>아이패드에서 <span class="ui">설정</span> 앱을 열고 왼쪽 목록을 보세요.</p>
+    <ul class="plain">
+      <li><span class="ui">셀룰러</span> 항목이 <strong>보이면</strong> → 셀룰러 모델</li>
+      <li><strong>안 보이면</strong> → Wi-Fi 전용 모델</li>
+    </ul>
+    <p>기억해 두세요. <strong>어느 쪽이든 다 됩니다.</strong> 연결 방법만 달라집니다.</p>
+  </div>
+</div>
+
+<!-- 1 -->
+<div class="step">
+  <div class="marker-num">1</div>
+  <div>
+    <h2>Python 설치</h2>
+    <p class="dur">5분 · 한 번만</p>
+    <p>이 프로그램을 돌리는 데 필요합니다.</p>
+    <ol class="plain">
+      <li><a href="https://www.python.org/downloads/">python.org/downloads</a> 접속</li>
+      <li>노란색 <span class="ui">Download Python</span> 큰 버튼 클릭</li>
+      <li>받은 파일 실행</li>
+    </ol>
+
+    <div class="note trap">
+      <span class="lbl">⚠ 여기가 제일 중요합니다</span>
+      <p>설치 창이 뜨면 <strong>Install Now를 바로 누르지 마세요.</strong></p>
+      <p>창 <strong>맨 아래</strong>에 체크박스가 있습니다.
+        <span class="mark">Add python.exe to PATH</span>
+        를 <strong>반드시 체크</strong>한 다음 <span class="ui">Install Now</span>를 누르세요.</p>
+      <p>이걸 빠뜨리면 나중에 “Python을 찾을 수 없다”는 메시지가 나옵니다.
+        그때는 Python을 지우고 이 단계부터 다시 하면 됩니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="step">
+  <div class="marker-num">2</div>
+  <div>
+    <h2>프로그램 내려받기</h2>
+    <p class="dur">2분</p>
+    <ol class="plain">
+      <li><a href="https://github.com/Jeguevara2/Claude-workspace/tree/claude/ipad-pencil-notebook-drawing-0ctzrl">이 링크</a>를 엽니다</li>
+      <li>오른쪽 위 초록색 <span class="ui">Code</span> 버튼 클릭</li>
+      <li><span class="ui">Download ZIP</span> 선택</li>
+      <li>받은 ZIP 파일을 <strong>바탕화면</strong>에 놓고, 오른쪽 클릭 → <span class="ui">압축 풀기</span></li>
+    </ol>
+    <p>긴 이름의 폴더가 생깁니다. 이름은 바꾸셔도 됩니다.</p>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="step">
+  <div class="marker-num">3</div>
+  <div>
+    <h2>실행하기</h2>
+    <p class="dur">2분 · 첫 실행만 오래 걸립니다</p>
+    <p>폴더를 열면 <code>run.bat</code> 파일이 있습니다. <strong>더블클릭</strong>하세요.</p>
+    <p>검은 창이 뜨고 글자가 주르륵 올라갑니다. 필요한 것들을 인터넷에서 받는 중이니
+      <strong>1~2분 그냥 기다리세요.</strong></p>
+
+    <div class="note info">
+      <span class="lbl">파란 경고창이 뜨면</span>
+      <p><strong>“Windows의 PC 보호”</strong> 창은 인터넷에서 받은 파일이라 뜨는 것입니다.
+        <span class="ui">추가 정보</span> → <span class="ui">실행</span> 을 누르세요.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 4 -->
+<div class="step">
+  <div class="marker-num">4</div>
+  <div>
+    <h2>방화벽 허용</h2>
+    <p class="dur">10초 · 가장 흔한 실패 지점</p>
+    <p><strong>“Windows Defender 방화벽에서 이 앱의 일부 기능을 차단했습니다”</strong> 창이 뜹니다.</p>
+
+    <div class="note trap">
+      <span class="lbl">⚠ 여기서 취소하면 아이패드가 접속 못 합니다</span>
+      <p><span class="mark">개인 네트워크</span>에 체크가 되어 있는지 확인하고
+        <span class="ui">액세스 허용</span>을 누르세요.</p>
+      <p>실수로 취소했다면: <span class="ui">Windows 보안</span> →
+        <span class="ui">방화벽 및 네트워크 보호</span> →
+        <span class="ui">방화벽을 통해 앱 허용</span> →
+        <span class="ui">설정 변경</span> 에서 Python을 찾아 체크하세요.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 5 -->
+<div class="step is-check">
+  <div class="marker-num">5</div>
+  <div>
+    <h2>QR 코드가 뜹니다</h2>
+    <p class="dur">확인만 하세요</p>
+    <div class="note ok">
+      <span class="lbl">✓ 이게 보이면 잘 되고 있는 겁니다</span>
+      <p><strong>“아이패드를 연결하세요”</strong> 라는 창이 뜨고 QR 코드가 보입니다.</p>
+      <p>이 창은 <strong>그대로 두세요.</strong> 7단계에서 씁니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6 -->
+<div class="step">
+  <div class="marker-num">6</div>
+  <div>
+    <h2>아이패드 연결</h2>
+    <p class="dur">3분 · 0단계에서 확인한 모델에 따라 갈립니다</p>
+
+    <div class="branch">
+      <span class="tag">셀룰러 모델</span>
+      <h3>USB 케이블로 연결</h3>
+      <ol class="plain">
+        <li>아이패드를 노트북에 USB로 연결</li>
+        <li>아이패드에 뜨는 <span class="ui">신뢰</span> 누르기</li>
+        <li>아이패드 <span class="ui">설정</span> → <span class="ui">개인용 핫스팟</span> →
+          <span class="ui">다른 사람의 연결 허용</span> 켜기</li>
+      </ol>
+
+      <div class="note warn">
+        <span class="lbl">⚠ 데이터 요금 아끼기 — 꼭 하세요</span>
+        <p>USB로 연결하면 Windows가 <strong>노트북의 인터넷을 전부 아이패드 셀룰러로 내보냅니다.</strong>
+          강의 중에 Windows 업데이트가 돌면 데이터가 훅 나갑니다.</p>
+        <p><span class="ui">설정</span> → <span class="ui">네트워크 및 인터넷</span> →
+          <span class="ui">이더넷</span> → 아이패드 연결 클릭 →
+          <span class="mark">종량제 연결</span>을 <strong>켬</strong>으로.</p>
+        <p>1분이면 되고, 한 번만 해두면 계속 유지됩니다.</p>
+      </div>
+
+      <div class="note info">
+        <span class="lbl">개인용 핫스팟이 안 보이거나 회색이면</span>
+        <p>데이터 요금제가 비활성 상태입니다. 이 기능은 요금제가 살아 있어야 켜집니다.
+          요금제를 안 쓰신다면 <strong>아래 Wi-Fi 전용 방법을 그대로</strong> 쓰시면 됩니다.
+          셀룰러 모델에서도 잘 됩니다.</p>
+        <p>노트북이 아이패드를 못 알아보면
+          <a href="https://apps.microsoft.com/detail/9np83lwlpz9k">Apple Devices</a> 앱을 설치하세요.
+          설치만 하면 되고 실행할 필요는 없습니다.</p>
+      </div>
+    </div>
+
+    <div class="branch">
+      <span class="tag">Wi-Fi 전용 모델</span>
+      <h3>노트북이 Wi-Fi를 쏘게 하기</h3>
+      <p>강의실에 인터넷이 없어도 되는 방법입니다.</p>
+      <ol class="plain">
+        <li>노트북 <span class="ui">설정</span> → <span class="ui">네트워크 및 인터넷</span> →
+          <span class="ui">모바일 핫스팟</span> 켜기</li>
+        <li>거기 표시된 <strong>네트워크 이름</strong>과 <strong>암호</strong> 확인</li>
+        <li>아이패드 <span class="ui">설정</span> → <span class="ui">Wi-Fi</span> 에서 그 이름으로 접속</li>
+      </ol>
+      <div class="note info">
+        <span class="lbl">참고</span>
+        <p>아이패드에 <strong>“인터넷 연결 안 됨”</strong>이라고 떠도 정상입니다.
+          노트북과 아이패드가 서로 통하기만 하면 됩니다.</p>
+      </div>
+    </div>
+
+    <div class="note warn">
+      <span class="lbl">연결 방식을 바꿨다면</span>
+      <p>노트북의 검은 창에서 <kbd>Ctrl</kbd> + <kbd>C</kbd> 를 눌러 끄고
+        <code>run.bat</code>을 다시 실행하세요. 주소가 바뀌기 때문입니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 7 -->
+<div class="step">
+  <div class="marker-num">7</div>
+  <div>
+    <h2>QR 코드 비추기</h2>
+    <p class="dur">10초</p>
+    <ol class="plain">
+      <li>아이패드에서 <span class="ui">카메라</span> 앱을 엽니다</li>
+      <li>노트북 화면의 QR 코드를 <strong>비춥니다</strong> (사진 찍지 말고 그냥 비추기만)</li>
+      <li>화면 위쪽에 뜨는 노란 알림을 <strong>누릅니다</strong></li>
+    </ol>
+
+    <div class="note ok">
+      <span class="lbl">✓ 성공</span>
+      <p>Safari가 열리면서 <strong>노트북 화면이 아이패드에 나타납니다.</strong></p>
+      <p>QR이 안 읽히면, 노트북 창에 크게 적힌 주소(<code>http://172.20...</code>)를
+        아이패드 Safari 주소창에 직접 입력해도 됩니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 8 -->
+<div class="step">
+  <div class="marker-num">8</div>
+  <div>
+    <h2>전체화면으로 만들기</h2>
+    <p class="dur">20초 · 권장</p>
+    <p>Safari의 <strong>공유 버튼</strong>(네모에 화살표) → 목록을 아래로 내려서
+      <span class="ui">홈 화면에 추가</span> → <span class="ui">추가</span></p>
+    <p>아이패드 홈 화면에 아이콘이 생깁니다. 다음부터 이 아이콘으로 열면
+      Safari 주소창 없이 <strong>전체화면</strong>으로 뜹니다. 강의할 때 훨씬 낫습니다.</p>
+  </div>
+</div>
+
+<!-- 사용법 -->
+<section class="block">
+  <h2>이제 쓰면 됩니다</h2>
+  <p>애플펜슬로 아이패드에 그으면 <strong>노트북 화면에도 똑같이 그려집니다.</strong>
+    손을 화면에 짚어도 선이 안 그어지니 편하게 쓰세요.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>도구</th><th>하는 일</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>동그란 색 6개</td><td>펜 색깔</td></tr>
+        <tr><td>점 5개</td><td>굵기 — 세게 누르면 더 굵어집니다</td></tr>
+        <tr><td>펜 / 지우개 / 레이저</td><td>레이저는 안 남고 사라지는 포인터</td></tr>
+        <tr><td>되돌리기</td><td>마지막 획 하나 취소</td></tr>
+        <tr><td>전체 지우기</td><td>필기 전부 지우기</td></tr>
+        <tr><td>필기 숨기기</td><td>노트북 화면의 필기만 잠깐 감추기</td></tr>
+        <tr><td>손가락</td><td>펜슬 없이 손가락으로 그리기</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><code>⋮</code> 버튼을 누르면 도구 모음이 접힙니다.</p>
+
+  <div class="recap">
+    <h2>다음 강의부터는</h2>
+    <p>준비는 끝났습니다. 매번 할 일은 이것뿐입니다.</p>
+    <ol>
+      <li><code>run.bat</code> 더블클릭</li>
+      <li>아이패드 연결 (USB 꽂기 또는 노트북 핫스팟 켜기)</li>
+      <li>아이패드 홈 화면 아이콘 누르기</li>
+    </ol>
+  </div>
+</section>
+
+<!-- Zoom -->
+<section class="block">
+  <h2>온라인 강의를 하신다면</h2>
+  <p>기본 상태로는 <strong>Zoom 화면 공유에 필기가 보이지 않습니다.</strong>
+    수강생에게 마킹을 보여주려면 실행 방법을 바꿔야 합니다.</p>
+  <p>폴더의 빈 곳에서 <kbd>Shift</kbd> + <strong>오른쪽 클릭</strong> →
+    <span class="ui">여기에 PowerShell 창 열기</span> 를 누른 뒤 아래를 붙여넣으세요.</p>
+  <pre><code class="block">.\run.bat --share-ink</code></pre>
+  <p>대면 강의(프로젝터)라면 <code>run.bat</code> 그냥 더블클릭으로 충분합니다.</p>
+</section>
+
+<!-- 문제해결 -->
+<section class="block">
+  <h2>잘 안 될 때</h2>
+
+  <details>
+    <summary>“Python을 찾을 수 없습니다”</summary>
+    <div class="body">
+      <p>1단계의 <strong>Add python.exe to PATH</strong> 체크를 빠뜨린 것입니다.
+        Python을 지우고 1단계부터 다시 하세요.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>QR을 찍었는데 “서버에 연결할 수 없음”</summary>
+    <div class="body">
+      <p>거의 항상 <strong>방화벽</strong>입니다. 4단계를 다시 보세요.</p>
+      <p>학교나 회사 Wi-Fi를 쓰고 있다면, 그 Wi-Fi가 기기 간 통신을 막는 것일 수도 있습니다.
+        6단계의 <strong>노트북 모바일 핫스팟</strong> 방식으로 바꾸면 대부분 해결됩니다.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>아이패드 설정에 “개인용 핫스팟”이 없습니다</summary>
+    <div class="body">
+      <p>Wi-Fi 전용 모델이거나 데이터 요금제가 비활성 상태입니다. 정상입니다.
+        6단계의 <strong>Wi-Fi 전용 모델</strong> 방법을 쓰시면 됩니다.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>펜슬로 그은 위치와 노트북에 나오는 위치가 다릅니다</summary>
+    <div class="body">
+      <p>화면 배율 문제일 수 있습니다. <strong>어느 정도 어긋나는지</strong> 알려주세요.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>노트북 화면이 클릭이 안 됩니다</summary>
+    <div class="body">
+      <p>원래는 필기 위로 클릭이 통과해야 정상입니다. 이 증상이 나오면 알려주세요.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>그림이 뚝뚝 끊깁니다</summary>
+    <div class="body">
+      <p>PowerShell에서 <code>.\run.bat --width 960</code> 으로 실행해 보세요.
+        화질을 조금 낮추고 속도를 올립니다.</p>
+    </div>
+  </details>
+</section>
+
+<footer class="end">
+  막히면 <strong>몇 단계에서, 화면에 뭐라고 떴는지</strong> 알려주세요.
+  그것만 있으면 원인을 찾을 수 있습니다.
+</footer>
+
+</div>
