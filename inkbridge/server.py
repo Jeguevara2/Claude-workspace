@@ -317,9 +317,33 @@ def local_addresses() -> list[str]:
         probe.close()
 
     usable = [a for a in found if not a.startswith("127.")]
-    # Surface the USB tethering subnet first; it is the one we recommend.
-    usable.sort(key=lambda a: (not a.startswith("172.20.10."), a))
+    # Direct laptop-to-iPad links come first: they are the ones that work in a
+    # classroom with no usable Wi-Fi, and the ones we recommend.
+    usable.sort(key=lambda a: (_address_rank(a), a))
     return usable
+
+
+# Subnets that indicate a direct link rather than a shared network.
+_DIRECT_SUBNETS = (
+    ("172.20.10.", 0, "USB 케이블 연결"),
+    ("192.168.137.", 1, "노트북 모바일 핫스팟"),
+    ("169.254.", 2, "이더넷 직결"),
+)
+
+
+def _address_rank(address: str) -> int:
+    for prefix, rank, _ in _DIRECT_SUBNETS:
+        if address.startswith(prefix):
+            return rank
+    return 9
+
+
+def describe_address(address: str) -> str:
+    """A short hint about how this address is reachable, or '' if it is ordinary."""
+    for prefix, _, label in _DIRECT_SUBNETS:
+        if address.startswith(prefix):
+            return label
+    return ""
 
 
 def build_app(bridge: "InkBridge", *, monitor: int, fps: int, max_width: int, quality: int) -> web.Application:

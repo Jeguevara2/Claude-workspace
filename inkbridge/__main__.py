@@ -40,20 +40,29 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def _describe_endpoints(port: int) -> None:
-    from .server import local_addresses
+    from .server import describe_address, local_addresses
 
     addresses = local_addresses()
-    print("\n  InkBridge is running.\n")
+    print("\n  InkBridge 실행 중\n")
     if not addresses:
-        print("  No network address found. Check the USB tether or Wi-Fi.\n")
+        print("  네트워크 주소를 찾지 못했습니다.")
+        print("  USB 테더링이나 모바일 핫스팟이 켜져 있는지 확인하세요.\n")
         return
 
-    print("  On the iPad, open Safari and go to:\n")
+    print("  아이패드 Safari에서 아래 주소를 여세요:\n")
     for address in addresses:
-        label = "  (USB tether)" if address.startswith("172.20.10.") else ""
-        print(f"      http://{address}:{port}{label}")
-    print("\n  Then tap Share -> Add to Home Screen for a full-screen, chrome-free view.")
-    print("  Press Ctrl+C in this window to stop.\n")
+        hint = describe_address(address)
+        suffix = f"   <- {hint}" if hint else ""
+        print(f"      http://{address}:{port}{suffix}")
+
+    if not describe_address(addresses[0]):
+        # Only ordinary LAN addresses showed up, which is the setup most likely
+        # to be blocked by a school or office access point.
+        print("\n  * 직결 연결이 없습니다. 공용 Wi-Fi에서 접속이 안 되면")
+        print("    노트북 모바일 핫스팟을 켜고 아이패드를 거기에 연결하세요.")
+
+    print("\n  접속 후 '공유 → 홈 화면에 추가'를 하면 전체화면으로 쓸 수 있습니다.")
+    print("  종료하려면 이 창에서 Ctrl+C.\n")
 
 
 def main(argv: list[str] | None = None) -> int:
