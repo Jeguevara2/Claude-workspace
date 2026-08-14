@@ -44,6 +44,7 @@ class InkBridge(QObject):
     clear = Signal()
     set_hidden = Signal(bool)
     laser = Signal(float, float, bool)
+    client_connected = Signal()
 
 
 def _apply_window_styles(hwnd: int, exclude_from_capture: bool) -> None:
@@ -81,11 +82,20 @@ def _apply_window_styles(hwnd: int, exclude_from_capture: bool) -> None:
         # sends it back, landing underneath the copy the iPad already drew.
         return
 
-    # WDA_EXCLUDEFROMCAPTURE: visible to the user, absent from screen grabs.
-    # Windows 10 2004 and newer; older builds fall back to WDA_MONITOR, which
-    # would blank the window in captures, so leave those alone entirely.
+    exclude_from_screen_capture(hwnd)
+
+
+def exclude_from_screen_capture(hwnd: int) -> None:
+    """Hide a window from screen grabs while leaving it visible on the desktop.
+
+    WDA_EXCLUDEFROMCAPTURE needs Windows 10 2004 or newer. Older builds only
+    offer WDA_MONITOR, which blanks the window in captures rather than omitting
+    it, so they are left alone entirely.
+    """
+    if sys.platform != "win32":
+        return
     try:
-        if not user32.SetWindowDisplayAffinity(hwnd, 0x00000011):
+        if not ctypes.windll.user32.SetWindowDisplayAffinity(hwnd, 0x00000011):
             log.debug("SetWindowDisplayAffinity unsupported on this build")
     except Exception:
         log.debug("SetWindowDisplayAffinity unavailable", exc_info=True)
@@ -169,6 +179,7 @@ class Overlay(QWidget):
         self._rerender()
 
     def paintEvent(self, event) -> None:  # noqa: N802 - Qt naming
+        self._ensure_layer()
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.drawImage(0, 0, self._layer)
@@ -192,15 +203,65 @@ class Overlay(QWidget):
 
     # ------------------------------------------------------------------ layout
 
+    def _layer_size(self) -> tuple[float, float]:
+        """Logical size of the ink layer.
+
+        Stroke coordinates are mapped against the layer rather than the widget
+        so the two can never disagree. A resize arrives as a queued event, and
+        anything painted before it is handled would otherwise be scaled to the
+        new widget size and then clipped against the old image.
+        """
+        ratio = self._layer.devicePixelRatio() or 1.0
+        return self._layer.width() / ratio, self._layer.height() / ratio
+
     def _to_widget(self, sample: Sample) -> QPointF:
-        return QPointF(sample[0] * self.width(), sample[1] * self.height())
+        width, height = self._layer_size()
+        return QPointF(sample[0] * width, sample[1] * height)
 
     def _scaled_width(self, width: float) -> float:
-        return max(1.0, width * self.height() / _WIDTH_REFERENCE_HEIGHT)
+        return max(1.0, width * self._layer_size()[1] / _WIDTH_REFERENCE_HEIGHT)
 
     # ------------------------------------------------------------------ drawing
 
+    def _ensure_layer(self) -> bool:
+        """Rebuild the ink layer if it no longer matches the widget.
+
+        Resize events are posted rather than delivered immediately, and are not
+        delivered at all before a widget is first shown, so the layer cannot be
+        assumed to track the widget. Checking here makes the overlay correct
+        regardless of event ordering; without it a stale layer would be blitted
+        into the top-left corner at the wrong scale.
+
+        Returns True when a rebuild happened, in which case strokes have already
+        been replayed onto the fresh layer.
+        """
+        ratio = self.devicePixelRatioF()
+        wanted = (
+            max(1, int(self.width() * ratio)),
+            max(1, int(self.height() * ratio)),
+        )
+        if (self._layer.width(), self._layer.height()) == wanted:
+            return False
+        self._layer = self._new_layer()
+        self._replay()
+        return True
+
+    def _replay(self) -> None:
+        """Paint every stored stroke onto the current layer."""
+        for stroke in self.board.strokes:
+            points = stroke.points
+            if not points:
+                continue
+            if len(points) == 1:
+                self._paint_segments(stroke, [(points[0], points[0])])
+            else:
+                self._paint_segments(stroke, list(zip(points, points[1:])))
+
     def _draw_segments(self, stroke, segments: list[Segment]) -> None:
+        self._ensure_layer()
+        self._paint_segments(stroke, segments)
+
+    def _paint_segments(self, stroke, segments: list[Segment]) -> None:
         if not segments:
             return
 
@@ -243,16 +304,12 @@ class Overlay(QWidget):
             self.update(dirty.toAlignedRect())
 
     def _rerender(self) -> None:
-        """Repaint every stroke from scratch. Only used by undo and resize."""
-        self._layer.fill(Qt.transparent)
-        for stroke in self.board.strokes:
-            points = stroke.points
-            if not points:
-                continue
-            if len(points) == 1:
-                self._draw_segments(stroke, [(points[0], points[0])])
-            else:
-                self._draw_segments(stroke, list(zip(points, points[1:])))
+        """Repaint every stroke from scratch. Used by undo, clear and resize."""
+        # A rebuild replays onto a fresh transparent layer already, so only
+        # clear and replay when the layer was reused.
+        if not self._ensure_layer():
+            self._layer.fill(Qt.transparent)
+            self._replay()
         self.update()
 
     # ------------------------------------------------------------------- slots

@@ -153,6 +153,9 @@ async def ws_screen(request: web.Request) -> web.WebSocketResponse:
     loop = asyncio.get_running_loop()
 
     hub.viewers += 1
+    # Tells the startup card it can stop asking to be scanned.
+    app[BRIDGE].client_connected.emit()
+
     acknowledged = asyncio.Event()
     acknowledged.set()
 

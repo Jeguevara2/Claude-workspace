@@ -35,7 +35,7 @@ class FakeBridge:
     """Duck-typed stand-in for the Qt InkBridge."""
 
     SIGNALS = ("begin_stroke", "extend_stroke", "end_stroke", "undo", "clear",
-               "set_hidden", "laser")
+               "set_hidden", "laser", "client_connected")
 
     def __init__(self) -> None:
         self.events: list = []

@@ -39,10 +39,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def _describe_endpoints(port: int) -> None:
-    from .server import describe_address, local_addresses
+def _describe_endpoints(port: int, addresses: list[str]) -> None:
+    from .server import describe_address
 
-    addresses = local_addresses()
     print("\n  InkBridge 실행 중\n")
     if not addresses:
         print("  네트워크 주소를 찾지 못했습니다.")
@@ -61,7 +60,7 @@ def _describe_endpoints(port: int) -> None:
         print("\n  * 직결 연결이 없습니다. 공용 Wi-Fi에서 접속이 안 되면")
         print("    노트북 모바일 핫스팟을 켜고 아이패드를 거기에 연결하세요.")
 
-    print("\n  접속 후 '공유 → 홈 화면에 추가'를 하면 전체화면으로 쓸 수 있습니다.")
+    print("\n  화면에 뜬 QR 코드를 아이패드 카메라로 비추면 주소를 입력하지 않아도 됩니다.")
     print("  종료하려면 이 창에서 Ctrl+C.\n")
 
 
@@ -105,6 +104,14 @@ def main(argv: list[str] | None = None) -> int:
     overlay.connect_bridge(bridge)
     overlay.show()
 
+    from .connect_window import make_connect_window
+    from .server import describe_address, local_addresses
+
+    addresses = local_addresses()
+    card = make_connect_window(addresses, args.port, describe_address)
+    bridge.client_connected.connect(card.on_client_connected)
+    card.show()
+
     server_thread = threading.Thread(
         target=serve,
         kwargs=dict(
@@ -122,7 +129,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     server_thread.start()
 
-    _describe_endpoints(args.port)
+    _describe_endpoints(args.port, addresses)
 
     try:
         return app.exec()

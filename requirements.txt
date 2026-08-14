@@ -1,4 +1,8 @@
 aiohttp>=3.9
 mss>=9.0
 Pillow>=10.0
-PySide6>=6.5
+qrcode>=7.4
+
+# Essentials rather than the full PySide6: it carries QtCore/QtGui/QtWidgets,
+# which is everything used here, and is a much smaller first-run download.
+PySide6-Essentials>=6.5
