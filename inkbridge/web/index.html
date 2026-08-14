@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>InkBridge</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1">
+<!-- Runs chrome-free once added to the Home Screen, which matters when the
+     iPad is propped on a lectern and Safari's bars are wasted space. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="InkBridge">
+<meta name="theme-color" content="#000000">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div id="stage-wrap">
+  <div id="stage">
+    <canvas id="screen"></canvas>
+    <canvas id="ink"></canvas>
+    <div id="surface" aria-label="Drawing surface"></div>
+  </div>
+</div>
+
+<div id="status" role="status">연결 중…</div>
+
+<div id="toolbar" data-open="true">
+  <button id="handle" type="button" title="도구 모음 접기/펼치기" aria-label="도구 모음 접기/펼치기">⋮</button>
+
+  <div id="tools">
+    <div class="group" id="colors" role="radiogroup" aria-label="색상"></div>
+
+    <div class="group" id="sizes" role="radiogroup" aria-label="굵기"></div>
+
+    <div class="group" role="radiogroup" aria-label="모드">
+      <button class="mode on" data-mode="pen" type="button">펜</button>
+      <button class="mode" data-mode="erase" type="button">지우개</button>
+      <button class="mode" data-mode="laser" type="button">레이저</button>
+    </div>
+
+    <div class="group">
+      <button id="undo" type="button">되돌리기</button>
+      <button id="clear" type="button">전체 지우기</button>
+    </div>
+
+    <div class="group">
+      <button id="hide" type="button" title="노트북 화면의 필기만 잠시 숨깁니다">필기 숨기기</button>
+      <button id="finger" type="button" title="펜슬이 없을 때 손가락으로도 그립니다">손가락</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
