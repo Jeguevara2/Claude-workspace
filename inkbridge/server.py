@@ -349,6 +349,23 @@ def describe_address(address: str) -> str:
     return ""
 
 
+def data_warning(address: str) -> str:
+    """Warning for connections whose traffic is billed to the user, else ''.
+
+    Windows routes all internet traffic through a tethered iPad once the
+    adapter appears, so background updates and cloud sync quietly spend the
+    cellular plan for as long as the cable is attached. Worth saying out loud
+    at the moment the tether is detected rather than burying in a document.
+    """
+    if address.startswith("172.20.10."):
+        return (
+            "USB 테더링 중에는 노트북의 모든 인터넷이 아이패드 셀룰러로 나갑니다.\n"
+            "Windows 설정 → 네트워크 및 인터넷 → 이더넷에서\n"
+            "해당 연결을 '종량제 연결'로 켜 두면 데이터 소모를 크게 줄일 수 있습니다."
+        )
+    return ""
+
+
 def build_app(bridge: "InkBridge", *, monitor: int, fps: int, max_width: int, quality: int) -> web.Application:
     app = web.Application()
     app[BRIDGE] = bridge

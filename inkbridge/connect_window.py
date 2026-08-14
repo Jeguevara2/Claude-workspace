@@ -74,6 +74,11 @@ QLabel#step  { font-size: 15px; color: #d1d1d6; }
 QLabel#addr  { font-size: 17px; font-weight: 600; color: #64d2ff; }
 QLabel#hint  { font-size: 13px; color: #98989d; }
 QLabel#state { font-size: 13px; color: #ffd60a; }
+QLabel#warn  {
+    font-size: 13px; color: #ffd60a;
+    background: #3a3320; border: 1px solid #5c4d1f;
+    border-radius: 9px; padding: 10px 12px;
+}
 QPushButton {
     font-size: 14px; color: #f2f2f7;
     background: #3a3a3c; border: none;
@@ -139,6 +144,14 @@ class ConnectWindow(QWidget):
             note = describe(addresses[0]) if describe else ""
             if note:
                 layout.addWidget(QLabel(f"연결 방식: {note}", objectName="hint"))
+
+            from .server import data_warning
+
+            warning = data_warning(addresses[0])
+            if warning:
+                banner = QLabel(f"⚠  {warning}", objectName="warn")
+                banner.setWordWrap(True)
+                layout.addWidget(banner)
 
         divider = QFrame()
         divider.setFrameShape(QFrame.HLine)
